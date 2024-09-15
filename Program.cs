@@ -1,7 +1,10 @@
+using System.Text;
 using authmodule.Db;
 using authmodule.Repository;
 using authmodule.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 builder.Services.AddScoped<ITempDataRepository, TempDataRepository>();
 builder.Services.AddScoped<ITempDataService, TempDataService>();
 
+#region JWT Service add
+var key = Encoding.ASCII.GetBytes("sdfs^&&#%GFHeystr6wecewr673674rfhsdvfyu3r46R%E%TSFdsdfsdf");
+
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options => {
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        RequireExpirationTime = true,
+        ValidateLifetime = true
+    };
+});
+#endregion
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,7 +48,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-         c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthModule V1 Docs");
     });
 }
 
@@ -35,6 +56,8 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+// Middleware to enable authentication
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
