@@ -1,7 +1,9 @@
 using System.Text;
+using authmodule;
 using authmodule.Db;
 using authmodule.Repository;
 using authmodule.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +16,15 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(option => 
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// builder.Services.AddSingleton<IMapper, Mapper>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddScoped<ITempDataRepository, TempDataRepository>();
 builder.Services.AddScoped<ITempDataService, TempDataService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+
 
 #region JWT Service add
 var key = Encoding.ASCII.GetBytes("sdfs^&&#%GFHeystr6wecewr673674rfhsdvfyu3r46R%E%TSFdsdfsdf");

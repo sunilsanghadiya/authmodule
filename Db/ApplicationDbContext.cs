@@ -8,6 +8,7 @@ namespace authmodule.Db
             
         }
 
+        public DbSet<Users> Users => Set<Users>();
         public DbSet<TempData> TempData => Set<TempData>();
     }
 }
