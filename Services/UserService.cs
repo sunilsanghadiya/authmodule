@@ -1,6 +1,9 @@
 using authmodule.Entitis;
+using authmodule.Helpers;
+using authmodule.Models;
 using authmodule.Models.DTOs;
 using authmodule.Repository;
+using AutoMapper;
 
 namespace authmodule.Services
 {
@@ -14,9 +17,13 @@ namespace authmodule.Services
     public class UserService : IUserService 
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository) 
+        private readonly IMapper _mapper;
+
+
+        public UserService(IUserRepository userRepository, IMapper mapper) 
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<Result> GetUsers()
@@ -51,8 +58,15 @@ namespace authmodule.Services
 
                 Result? result = new();
                 Users? loginUser = await _userRepository.Login(loginDto);
+                
+                LoginResponse? loginResponse = _mapper.Map<LoginResponse>(loginUser);
 
-                result.ResultObject = loginUser;
+                #region Generate AccessToken for User
+                
+                loginResponse.AccessToken = JwtTokenHelper.GenerateJwtToken(loginResponse.Email, "sdfs^&&#%GFHeystr6wecewr673674rfhsdvfyu3r46R%E%TSFdsdfsdf");
+                #endregion
+
+                result.ResultObject = loginResponse;
                 return result;
             }
             catch(Exception ex)
@@ -66,13 +80,21 @@ namespace authmodule.Services
             try 
             {
                 #region API VALIDATIONS
+                if(!registerDto.Email.Contains("@"))
+                {
+                    return new Result($"Please provide valid email address", registerDto.Email.ToString());
+                }
                 if(string.IsNullOrWhiteSpace(registerDto.Email))
                 {
                     return new Result($"Please provide email address", registerDto.Email.ToString());
                 }
                 if(string.IsNullOrWhiteSpace(registerDto.Password))
                 {
-                    return new Result($"Please provide Password address", registerDto.Password.ToString());
+                    return new Result($"Please provide Password", registerDto.Password.ToString());
+                }
+                if(registerDto.Password.Length < 8)
+                {
+                    return new Result($"Please provide atleast 8 character Password", registerDto.Password.ToString());
                 }
                 #endregion
 

@@ -7,8 +7,8 @@ namespace authmodule.Entitis
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? MobileNumber { get; set; }
-        public bool Gender { get; set; }
-        public DateOnly BirthDate { get; set; }
+        public int Gender { get; set; }
+        public DateTime BirthDate { get; set; }
         public bool IsActive { get; set; }
         public bool IsAdmin { get; set; }
         public DateTime Created { get; set; }

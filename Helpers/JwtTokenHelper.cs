@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace authmodule.Helpers
 {
-     public static class JwtTokenHelper
+    public static class JwtTokenHelper
     {
         public static string GenerateJwtToken(string username, string secretKey)
         {
