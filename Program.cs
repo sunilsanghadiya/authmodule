@@ -1,6 +1,7 @@
 using System.Text;
 using authmodule;
 using authmodule.Db;
+using authmodule.Middlewares;
 using authmodule.Repository;
 using authmodule.Services;
 using AutoMapper;
@@ -66,6 +67,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 // Middleware to enable authentication
+app.UseMiddleware<AuthMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

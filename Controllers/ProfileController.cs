@@ -16,7 +16,7 @@ namespace authmodule.Controllers
         // [HttpGet("GetUserProfile")]
         // public async Task<IActionResult> GetUserProfile()
         // {
-            
+        //     Result? result = await _
         // }
     }
 }

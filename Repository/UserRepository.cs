@@ -8,9 +8,9 @@ namespace authmodule.Repository
     public interface IUserRepository
     {
         Task<List<Users>?> GetAllUsers(); 
-        Task<Users> Login(LoginDto loginDto);
-        Task<Users> Register(Users users);
-        Task<Users> GetUserByEmailId(string emailId);
+        Task<Users?> Login(LoginDto loginDto);
+        Task<Users?> Register(Users users);
+        Task<Users?> GetUserByEmailId(string emailId);
     }
     public class UserRepository : IUserRepository
     {
@@ -27,17 +27,17 @@ namespace authmodule.Repository
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<Users> Login(LoginDto loginDto)
+        public async Task<Users?> Login(LoginDto loginDto)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email && x.Password == loginDto.Password && !x.IsDeleted && x.IsActive);
         }
 
-        public async Task<Users> GetUserByEmailId(string emailId) 
+        public async Task<Users?> GetUserByEmailId(string emailId) 
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == emailId && !u.IsDeleted);
         }
 
-        public async Task<Users> Register(Users users)
+        public async Task<Users?> Register(Users users)
         {
             if(users.ID == 0)
             {
