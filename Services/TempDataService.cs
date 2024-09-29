@@ -1,4 +1,3 @@
-using authmodule.Db;
 using authmodule.Repository;
 using Microsoft.AspNetCore.Http.HttpResults;
 
