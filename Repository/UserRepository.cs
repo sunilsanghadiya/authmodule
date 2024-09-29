@@ -10,6 +10,7 @@ namespace authmodule.Repository
         Task<List<Users>?> GetAllUsers(); 
         Task<Users> Login(LoginDto loginDto);
         Task<Users> Register(Users users);
+        Task<Users> GetUserByEmailId(string emailId);
     }
     public class UserRepository : IUserRepository
     {
@@ -28,12 +29,12 @@ namespace authmodule.Repository
 
         public async Task<Users> Login(LoginDto loginDto)
         {
-            Users? user = new();
-            if(loginDto != null)
-            {
-                user = _context.Users.Where(x => x.Email == loginDto.Email && x.Password == loginDto.Password && !x.IsDeleted).FirstOrDefault();
-            }
-            return user;
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email && x.Password == loginDto.Password && !x.IsDeleted && x.IsActive);
+        }
+
+        public async Task<Users> GetUserByEmailId(string emailId) 
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == emailId && !u.IsDeleted);
         }
 
         public async Task<Users> Register(Users users)

@@ -1,9 +1,11 @@
+using System.Net;
 using authmodule.Entitis;
 using authmodule.Helpers;
 using authmodule.Models;
 using authmodule.Models.DTOs;
 using authmodule.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 namespace authmodule.Services
 {
@@ -19,8 +21,9 @@ namespace authmodule.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-
-        public UserService(IUserRepository userRepository, IMapper mapper) 
+        public UserService(
+            IUserRepository userRepository, 
+            IMapper mapper) 
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -57,13 +60,29 @@ namespace authmodule.Services
                 }
 
                 Result? result = new();
-                Users? loginUser = await _userRepository.Login(loginDto);
-                
+                Users? loginUser = new();
+
+                Users? userByEmail = await _userRepository.GetUserByEmailId(loginDto.Email);  
+
+                //verify either user auhorized or not
+                bool isVerifiedUser = CustomPasswordHasher.VerifyPassword(loginDto.Password, userByEmail.Password);
+
+                if(isVerifiedUser) {
+                    loginDto.Password = userByEmail.Password;
+                    loginUser = await _userRepository.Login(loginDto);
+                }else {
+                    return new Result("Unauthorized user.");
+                }
+            
+                if(loginUser == null) {
+                    return new Result($"An error occurred while getting user : {loginDto.Email.ToString()}", null, HttpStatusCode.InternalServerError);
+                }
+
                 LoginResponse? loginResponse = _mapper.Map<LoginResponse>(loginUser);
 
                 #region Generate AccessToken for User
                 
-                loginResponse.AccessToken = JwtTokenHelper.GenerateJwtToken(loginResponse.Email, "sdfs^&&#%GFHeystr6wecewr673674rfhsdvfyu3r46R%E%TSFdsdfsdf");
+                loginResponse.AccessToken = JwtTokenHelper.GenerateJwtToken(loginResponse?.Email, "sdfs^&&#%GFHeystr6wecewr673674rfhsdvfyu3r46R%E%TSFdsdfsdf");
                 #endregion
 
                 result.ResultObject = loginResponse;
@@ -100,8 +119,6 @@ namespace authmodule.Services
 
                 Result? result = new();
 
-                PasswordHasher? passwordHasher = new();
-
                 Users? newUser = new()
                 {
                     FirstName = registerDto.FirstName,
@@ -116,7 +133,7 @@ namespace authmodule.Services
                     Modified = null,
                     ModifiedBy = 0,
                     IsDeleted = false,
-                    Password = passwordHasher.HashPassword(registerDto.Password)
+                    Password = CustomPasswordHasher.HashPassword(registerDto.Password)
                 };
 
                 newUser = await _userRepository.Register(newUser);
